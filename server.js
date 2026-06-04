@@ -78,8 +78,8 @@ app.delete('/books/:id', async (req, res) => {
     }
 });
 
-// KHỞI ĐỘNG SERVER
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(` Backend đang chạy tại: http://localhost:${PORT}`);
+// Thêm '0.0.0.0' để server lắng nghe từ mọi địa chỉ IP, không chỉ riêng localhost
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server đang chạy tại cổng ${PORT}`);
 });
