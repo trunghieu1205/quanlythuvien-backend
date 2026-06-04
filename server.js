@@ -29,6 +29,7 @@ pool.connect((err, client, release) => {
 // 1. LẤY DANH SÁCH TẤT CẢ SÁCH (READ)
 app.get('/books', async (req, res) => {
     try {
+        // Cột image_url đã được tự động thêm vào lệnh lấy dữ liệu này
         const result = await pool.query('SELECT * FROM books ORDER BY id DESC');
         res.status(200).json(result.rows);
     } catch (err) {
@@ -40,14 +41,18 @@ app.get('/books', async (req, res) => {
 // 2. THÊM SÁCH MỚI (CREATE)
 app.post('/books', async (req, res) => {
     try {
-        const { title, author, category } = req.body;
+        // Lấy thêm trường image_url được gửi lên từ Frontend form
+        const { title, author, category, image_url } = req.body;
         
         if (!title || !author || !category) {
             return res.status(400).json({ error: 'Vui lòng nhập đầy đủ thông tin sách.' });
         }
 
-        const queryText = 'INSERT INTO books (title, author, category) VALUES ($1, $2, $3) RETURNING *';
-        const result = await pool.query(queryText, [title, author, category]);
+        // Nếu người dùng để trống ô nhập ảnh, hệ thống sẽ tự động gán một link ảnh sách mặc định
+        const finalImageUrl = image_url || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500';
+
+        const queryText = 'INSERT INTO books (title, author, category, image_url) VALUES ($1, $2, $3, $4) RETURNING *';
+        const result = await pool.query(queryText, [title, author, category, finalImageUrl]);
         
         res.status(201).json(result.rows[0]);
     } catch (err) {
